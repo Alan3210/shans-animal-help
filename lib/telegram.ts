@@ -62,7 +62,7 @@ export async function sendTelegramReportNotification(report: TelegramReport) {
             [
               {
                 text: "Открыть админку",
-                url: "https://google.com",
+                url: "https://shans-animal-help.vercel.app/admin",
               },
             ],
           ],
