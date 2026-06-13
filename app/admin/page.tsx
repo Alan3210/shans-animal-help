@@ -205,84 +205,83 @@ const closedCount =
           )}
 
           {sortedReports?.map((report) => (
-            <div
-              key={report.id}
-              className="rounded-3xl bg-white p-4 shadow-sm md:grid md:grid-cols-[160px_1fr] md:gap-5"
-            >
-{report.photos?.[0] ? (
-  <img
-    src={report.photos[0]}
-    alt="Фото животного"
-    className="mb-4 h-40 w-full rounded-2xl object-cover md:mb-0"
-  />
-) : (
-  <div className="mb-4 flex h-40 items-center justify-center rounded-2xl bg-zinc-100 text-zinc-500 md:mb-0">
-    Нет фото
+  <div
+    key={report.id}
+    className="rounded-3xl bg-white p-5 shadow-sm md:grid md:grid-cols-[180px_1fr] md:gap-6"
+  >
+    {report.photos?.[0] ? (
+      <img
+        src={report.photos[0]}
+        alt="Фото животного"
+        className="mb-4 h-44 w-full rounded-2xl object-cover md:mb-0"
+      />
+    ) : (
+      <div className="mb-4 flex h-44 items-center justify-center rounded-2xl bg-zinc-100 text-zinc-500 md:mb-0">
+        Нет фото
+      </div>
+    )}
+
+    <div className="grid gap-5 md:grid-cols-[1fr_1.2fr]">
+      <div>
+        <div className="mb-3 flex flex-wrap gap-2">
+          <span className="rounded-full bg-zinc-100 px-3 py-1 text-sm">
+            #{report.id.slice(0, 8)}
+          </span>
+
+          <span className="rounded-full bg-emerald-100 px-3 py-1 text-sm text-emerald-800">
+            {formatStatus(report.status)}
+          </span>
+
+          <span className="rounded-full bg-amber-100 px-3 py-1 text-sm text-amber-900">
+            {formatPriority(report.priority)}
+          </span>
+
+          {report.requires_specialist && (
+            <span className="rounded-full bg-red-100 px-3 py-1 text-sm text-red-800">
+              ⚠ Профильный специалист
+            </span>
+          )}
+        </div>
+
+        <h2 className="text-xl font-semibold">
+          {report.animal_type} · {report.animal_condition}
+        </h2>
+
+        <p className="mt-3 text-sm text-zinc-500">
+          Создано: {new Date(report.created_at).toLocaleString("ru-RU")}
+        </p>
+
+        <div className="mt-4">
+          <Link
+            href={`/admin/reports/${report.id}`}
+            className="inline-block rounded-2xl border border-emerald-700 px-4 py-3 font-semibold text-emerald-800"
+          >
+            Открыть заявку
+          </Link>
+        </div>
+      </div>
+
+      <div className="rounded-2xl bg-stone-50 p-4">
+        <p className="mb-2 text-zinc-700">
+          <strong>Место:</strong> {report.location_address || "—"}
+        </p>
+
+        <p className="mb-2 text-zinc-700">
+          <strong>Комментарий:</strong> {report.situation_comment || "—"}
+        </p>
+
+        <p className="mb-4 text-zinc-700">
+          <strong>Контакт:</strong> {report.reporter_phone || "—"}
+        </p>
+
+        <StatusUpdateForm
+          reportId={report.id}
+          currentStatus={report.status}
+        />
+      </div>
+    </div>
   </div>
-)}
-
-              <div>
-                <div className="mb-3 flex flex-wrap gap-2">
-                  <span className="rounded-full bg-zinc-100 px-3 py-1 text-sm">
-                    #{report.id.slice(0, 8)}
-                  </span>
-
-                  <span className="rounded-full bg-emerald-100 px-3 py-1 text-sm text-emerald-800">
-                    {formatStatus(report.status)}
-                  </span>
-
-                  <span className="rounded-full bg-amber-100 px-3 py-1 text-sm text-amber-900">
-                    {formatPriority(report.priority)}
-                  </span>
-
-                  {report.requires_specialist && (
-                    <span className="rounded-full bg-red-100 px-3 py-1 text-sm text-red-800">
-                      ⚠ Профильный специалист
-                    </span>
-                  )}
-                </div>
-
-                <h2 className="mb-2 text-xl font-semibold">
-                  {report.animal_type} · {report.animal_condition}
-                </h2>
-
-                <p className="mb-2 text-zinc-700">
-                  <strong>Место:</strong> {report.location_address || "—"}
-                </p>
-
-                {report.situation_comment && (
-                  <p className="mb-2 text-zinc-700">
-                    <strong>Комментарий:</strong> {report.situation_comment}
-                  </p>
-                )}
-
-                {report.reporter_phone && (
-                  <p className="mb-2 text-zinc-700">
-                    <strong>Контакт:</strong> {report.reporter_phone}
-                  </p>
-                )}
-
-                <p className="mt-3 text-sm text-zinc-500">
-                  Создано:{" "}
-                  {new Date(report.created_at).toLocaleString("ru-RU")}
-                </p>
-
-                <div className="mt-4 flex flex-wrap gap-3">
-                  <Link
-                    href={`/admin/reports/${report.id}`}
-                    className="rounded-2xl border border-emerald-700 px-4 py-3 font-semibold text-emerald-800"
-                  >
-                    Открыть заявку
-                  </Link>
-                </div>
-
-                <StatusUpdateForm
-                  reportId={report.id}
-                  currentStatus={report.status}
-                />
-              </div>
-            </div>
-          ))}
+))}
         </div>
       </section>
     </main>

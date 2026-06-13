@@ -11,30 +11,48 @@ export default function StatusUpdateForm({
   currentStatus: string;
 }) {
   const router = useRouter();
+
   const [status, setStatus] = useState(currentStatus);
   const [isSaving, setIsSaving] = useState(false);
+  const [savedText, setSavedText] = useState("");
 
-  async function handleSave() {
+  async function handleStatusChange(newStatus: string) {
+    setStatus(newStatus);
     setIsSaving(true);
+    setSavedText("");
 
-    await fetch(`/api/admin/reports/${reportId}`, {
+    const response = await fetch(`/api/admin/reports/${reportId}`, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ status }),
+      body: JSON.stringify({ status: newStatus }),
     });
 
     setIsSaving(false);
+
+    if (!response.ok) {
+      setSavedText("Ошибка сохранения");
+      return;
+    }
+
+    setSavedText("Сохранено");
     router.refresh();
+
+    setTimeout(() => {
+      setSavedText("");
+    }, 1500);
   }
 
   return (
-    <div className="mt-4 flex gap-2">
+    <div className="mt-4 flex items-center gap-2">
+      <span className="text-sm text-zinc-500">Статус:</span>
+
       <select
         value={status}
-        onChange={(event) => setStatus(event.target.value)}
-        className="flex-1 rounded-2xl border border-zinc-300 p-3"
+        onChange={(event) => handleStatusChange(event.target.value)}
+        disabled={isSaving}
+        className="w-44 rounded-xl border border-zinc-300 px-3 py-2 text-sm disabled:bg-zinc-100"
       >
         <option value="new">Новая</option>
         <option value="in_progress">В работе</option>
@@ -42,14 +60,11 @@ export default function StatusUpdateForm({
         <option value="closed">Закрыта</option>
       </select>
 
-      <button
-        type="button"
-        onClick={handleSave}
-        disabled={isSaving}
-        className="rounded-2xl bg-emerald-700 px-4 py-3 font-semibold text-white disabled:bg-zinc-400"
-      >
-        {isSaving ? "..." : "Сохранить"}
-      </button>
+      {isSaving && <span className="text-sm text-zinc-500">Сохраняем...</span>}
+
+      {savedText && (
+        <span className="text-sm text-emerald-700">{savedText}</span>
+      )}
     </div>
   );
 }
