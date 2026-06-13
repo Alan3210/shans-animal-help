@@ -69,17 +69,29 @@ export default async function ReportDetailPage({
             {report.animal_type} · {report.animal_condition}
           </h1>
 
-          {report.photos?.[0] ? (
-            <img
-              src={report.photos[0]}
-              alt="Фото животного"
-              className="mb-6 max-h-[520px] w-full rounded-3xl object-cover"
-            />
-          ) : (
-            <div className="mb-6 flex h-64 items-center justify-center rounded-3xl bg-zinc-100 text-zinc-500">
-              Фото нет
-            </div>
-          )}
+          {report.photos?.length > 0 ? (
+  <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
+    {report.photos.map((photoUrl: string, index: number) => (
+      <a
+        key={photoUrl}
+        href={photoUrl}
+        target="_blank"
+        rel="noreferrer"
+        className="block"
+      >
+        <img
+          src={photoUrl}
+          alt={`Фото животного ${index + 1}`}
+          className="h-64 w-full rounded-3xl object-cover"
+        />
+      </a>
+    ))}
+  </div>
+) : (
+  <div className="mb-6 flex h-64 items-center justify-center rounded-3xl bg-zinc-100 text-zinc-500">
+    Фото нет
+  </div>
+)}
 
           <div className="space-y-3 text-zinc-700">
             <p>
