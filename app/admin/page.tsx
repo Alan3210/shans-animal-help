@@ -21,6 +21,40 @@ searchParams: Promise<{
     .order("created_at", { ascending: false });
 
   if (error) {
+    function getTelegramLink(contact?: string | null) {
+  if (!contact) return null;
+
+  const trimmed = contact.trim();
+
+  if (trimmed.startsWith("@")) {
+    return `https://t.me/${trimmed.slice(1)}`;
+  }
+
+  if (trimmed.startsWith("https://t.me/")) {
+    return trimmed;
+  }
+
+  if (trimmed.startsWith("t.me/")) {
+    return `https://${trimmed}`;
+  }
+
+  return null;
+}
+    function getPriorityBorder(priority: string) {
+  switch (priority) {
+    case "red":
+      return "border-l-8 border-red-500";
+
+    case "yellow":
+      return "border-l-8 border-amber-400";
+
+    case "green":
+      return "border-l-8 border-emerald-500";
+
+    default:
+      return "";
+  }
+}
     return (
       <main className="min-h-screen bg-stone-50 px-5 py-8 text-zinc-900">
         <section className="mx-auto max-w-5xl">
@@ -90,6 +124,40 @@ const urgentCount = reports?.filter((report) => report.priority === "red").lengt
 const closedCount =
   reports?.filter((report) => report.status === "closed").length || 0;
 
+function getTelegramLink(contact?: string | null) {
+  if (!contact) return null;
+
+  const trimmed = contact.trim();
+
+  if (trimmed.startsWith("@")) {
+    return `https://t.me/${trimmed.slice(1)}`;
+  }
+
+  if (trimmed.startsWith("https://t.me/")) {
+    return trimmed;
+  }
+
+  if (trimmed.startsWith("t.me/")) {
+    return `https://${trimmed}`;
+  }
+
+  return null;
+}
+function getPriorityBorder(priority: string) {
+  switch (priority) {
+    case "red":
+      return "border-l-4 border-red-500";
+
+    case "yellow":
+      return "border-l-4 border-amber-400";
+
+    case "green":
+      return "border-l-4 border-emerald-500";
+
+    default:
+      return "";
+  }
+}
   return (
     <main className="min-h-screen bg-stone-50 px-5 py-8 text-zinc-900">
       <section className="mx-auto max-w-5xl">
@@ -207,7 +275,7 @@ const closedCount =
           {sortedReports?.map((report) => (
   <div
     key={report.id}
-    className="rounded-3xl bg-white p-5 shadow-sm md:grid md:grid-cols-[180px_1fr] md:gap-6"
+    className={`rounded-3xl bg-white p-5 shadow-sm md:grid md:grid-cols-[180px_1fr] md:gap-6 ${getPriorityBorder(report.priority)}`}
   >
     {report.photos?.[0] ? (
       <img
@@ -251,15 +319,21 @@ const closedCount =
           Создано: {new Date(report.created_at).toLocaleString("ru-RU")}
         </p>
 
-        <div className="mt-4">
-          <Link
-            href={`/admin/reports/${report.id}`}
-            className="inline-block rounded-2xl border border-emerald-700 px-4 py-3 font-semibold text-emerald-800"
-          >
-            Открыть заявку
-          </Link>
-        </div>
+<div className="mt-4 flex flex-wrap items-center gap-3">
+  <Link
+    href={`/admin/reports/${report.id}`}
+    className="inline-block rounded-2xl border border-emerald-700 px-4 py-3 font-semibold text-emerald-800"
+  >
+    Открыть заявку
+  </Link>
+
+  <StatusUpdateForm
+    reportId={report.id}
+    currentStatus={report.status}
+  />
+</div>
       </div>
+        
 
       <div className="rounded-2xl bg-stone-50 p-4">
         <p className="mb-2 text-zinc-700">
@@ -270,14 +344,44 @@ const closedCount =
           <strong>Комментарий:</strong> {report.situation_comment || "—"}
         </p>
 
-        <p className="mb-4 text-zinc-700">
-          <strong>Контакт:</strong> {report.reporter_phone || "—"}
-        </p>
+<div className="mb-4">
+<strong>Контакт:</strong>{" "}
+{report.reporter_phone ? report.reporter_phone : "—"}
 
-        <StatusUpdateForm
-          reportId={report.id}
-          currentStatus={report.status}
-        />
+{report.reporter_phone && (
+  <div className="mt-3 flex flex-wrap gap-2">
+    {report.location_lat && report.location_lng && (
+  <a
+    href={`https://www.google.com/maps?q=${report.location_lat},${report.location_lng}`}
+    target="_blank"
+    rel="noreferrer"
+    className="rounded-xl bg-stone-800 px-3 py-2 text-sm font-medium text-white"
+  >
+    📍 Карта
+  </a>
+)}
+    <a
+      href={`tel:${report.reporter_phone}`}
+      className="rounded-xl bg-emerald-700 px-3 py-2 text-sm font-medium text-white"
+    >
+      📞 Позвонить
+    </a>
+
+    {getTelegramLink(report.reporter_phone) && (
+      <a
+        href={getTelegramLink(report.reporter_phone) || "#"}
+        target="_blank"
+        rel="noreferrer"
+        className="rounded-xl bg-sky-600 px-3 py-2 text-sm font-medium text-white"
+      >
+        💬 Telegram
+      </a>
+    )}
+  </div>
+)}
+</div>
+
+
       </div>
     </div>
   </div>

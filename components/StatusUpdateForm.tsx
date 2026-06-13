@@ -32,7 +32,7 @@ export default function StatusUpdateForm({
     setIsSaving(false);
 
     if (!response.ok) {
-      setSavedText("Ошибка сохранения");
+      setSavedText("Ошибка");
       return;
     }
 
@@ -45,14 +45,12 @@ export default function StatusUpdateForm({
   }
 
   return (
-    <div className="mt-4 flex items-center gap-2">
-      <span className="text-sm text-zinc-500">Статус:</span>
-
+    <div className="flex items-center gap-2">
       <select
         value={status}
         onChange={(event) => handleStatusChange(event.target.value)}
         disabled={isSaving}
-        className="w-44 rounded-xl border border-zinc-300 px-3 py-2 text-sm disabled:bg-zinc-100"
+        className="w-40 rounded-xl border border-zinc-300 px-3 py-2 text-sm disabled:bg-zinc-100"
       >
         <option value="new">Новая</option>
         <option value="in_progress">В работе</option>
@@ -60,7 +58,7 @@ export default function StatusUpdateForm({
         <option value="closed">Закрыта</option>
       </select>
 
-      {isSaving && <span className="text-sm text-zinc-500">Сохраняем...</span>}
+      {isSaving && <span className="text-sm text-zinc-500">...</span>}
 
       {savedText && (
         <span className="text-sm text-emerald-700">{savedText}</span>
