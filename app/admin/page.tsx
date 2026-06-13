@@ -44,13 +44,14 @@ const filteredReports = reports?.filter((report) => {
   if (filters.q) {
     const search = filters.q.toLowerCase();
 
-    const searchableText = [
-      report.location_address,
-      report.situation_comment,
-      report.reporter_phone,
-      report.animal_type,
-      report.animal_condition,
-    ]
+const searchableText = [
+  report.id,
+  report.location_address,
+  report.situation_comment,
+  report.reporter_phone,
+  report.animal_type,
+  report.animal_condition,
+]
       .filter(Boolean)
       .join(" ")
       .toLowerCase();
@@ -208,17 +209,17 @@ const closedCount =
               key={report.id}
               className="rounded-3xl bg-white p-4 shadow-sm md:grid md:grid-cols-[160px_1fr] md:gap-5"
             >
-              {report.photos?.[0] ? (
-                <img
-                  src={report.photos[0]}
-                  alt="Фото животного"
-                  className="mb-4 h-40 w-full rounded-2xl object-cover md:mb-0"
-                />
-              ) : (
-                <div className="mb-4 flex h-40 items-center justify-center rounded-2xl bg-zinc-100 text-zinc-500 md:mb-0">
-                  Нет фото
-                </div>
-              )}
+{report.photos?.[0] ? (
+  <img
+    src={report.photos[0]}
+    alt="Фото животного"
+    className="mb-4 h-40 w-full rounded-2xl object-cover md:mb-0"
+  />
+) : (
+  <div className="mb-4 flex h-40 items-center justify-center rounded-2xl bg-zinc-100 text-zinc-500 md:mb-0">
+    Нет фото
+  </div>
+)}
 
               <div>
                 <div className="mb-3 flex flex-wrap gap-2">
