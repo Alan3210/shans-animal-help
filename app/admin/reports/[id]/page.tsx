@@ -3,6 +3,7 @@ import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import { formatPriority, formatStatus } from "@/lib/formatters";
 import StatusUpdateForm from "@/components/StatusUpdateForm";
 
+export const dynamic = "force-dynamic";
 export default async function ReportDetailPage({
   params,
 }: {
