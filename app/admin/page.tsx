@@ -3,7 +3,16 @@ import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import { formatPriority, formatStatus } from "@/lib/formatters";
 import StatusUpdateForm from "@/components/StatusUpdateForm";
 
-export default async function AdminPage() {
+export const dynamic = "force-dynamic"
+export default async function AdminPage({
+  searchParams,
+}: {
+  searchParams: Promise<{
+    status?: string;
+    priority?: string;
+  }>;
+}) {
+  const filters = await searchParams;
   const { data: reports, error } = await supabaseAdmin
     .from("animal_reports")
     .select("*")
@@ -21,13 +30,25 @@ export default async function AdminPage() {
     );
   }
 
+const filteredReports = reports?.filter((report) => {
+  if (filters.status && report.status !== filters.status) {
+    return false;
+  }
+
+  if (filters.priority && report.priority !== filters.priority) {
+    return false;
+  }
+
+  return true;
+});
+
   const priorityOrder: Record<string, number> = {
     red: 1,
     yellow: 2,
     green: 3,
   };
 
-  const sortedReports = reports?.sort((a, b) => {
+  const sortedReports = filteredReports?.sort((a, b) => {
     const priorityDiff = priorityOrder[a.priority] - priorityOrder[b.priority];
 
     if (priorityDiff !== 0) {
@@ -39,6 +60,14 @@ export default async function AdminPage() {
     );
   });
 
+  const totalCount = reports?.length || 0;
+const newCount = reports?.filter((report) => report.status === "new").length || 0;
+const inProgressCount =
+  reports?.filter((report) => report.status === "in_progress").length || 0;
+const urgentCount = reports?.filter((report) => report.priority === "red").length || 0;
+const closedCount =
+  reports?.filter((report) => report.status === "closed").length || 0;
+
   return (
     <main className="min-h-screen bg-stone-50 px-5 py-8 text-zinc-900">
       <section className="mx-auto max-w-5xl">
@@ -47,6 +76,94 @@ export default async function AdminPage() {
         <p className="mb-6 text-zinc-600">
           Здесь отображаются заявки, отправленные жителями.
         </p>
+    
+<div className="mb-6 grid grid-cols-2 gap-3 md:grid-cols-5">
+  <div className="rounded-2xl bg-white p-4 shadow-sm">
+    <p className="text-sm text-zinc-500">Всего</p>
+    <p className="text-2xl font-bold">{totalCount}</p>
+  </div>
+
+  <div className="rounded-2xl bg-white p-4 shadow-sm">
+    <p className="text-sm text-zinc-500">Новые</p>
+    <p className="text-2xl font-bold">{newCount}</p>
+  </div>
+
+  <div className="rounded-2xl bg-white p-4 shadow-sm">
+    <p className="text-sm text-zinc-500">В работе</p>
+    <p className="text-2xl font-bold">{inProgressCount}</p>
+  </div>
+
+  <div className="rounded-2xl bg-red-50 p-4 shadow-sm">
+    <p className="text-sm text-red-700">Срочные</p>
+    <p className="text-2xl font-bold text-red-800">{urgentCount}</p>
+  </div>
+
+  <div className="rounded-2xl bg-white p-4 shadow-sm">
+    <p className="text-sm text-zinc-500">Закрытые</p>
+    <p className="text-2xl font-bold">{closedCount}</p>
+  </div>
+</div>
+
+
+
+      <div className="mb-6 flex flex-wrap gap-2">
+  <Link
+    href="/admin"
+    className="rounded-full bg-zinc-100 px-4 py-2 text-sm font-medium"
+  >
+    Все
+  </Link>
+
+  <Link
+    href="/admin?status=new"
+    className="rounded-full bg-zinc-100 px-4 py-2 text-sm font-medium"
+  >
+    Новые
+  </Link>
+
+  <Link
+    href="/admin?status=in_progress"
+    className="rounded-full bg-zinc-100 px-4 py-2 text-sm font-medium"
+  >
+    В работе
+  </Link>
+
+  <Link
+    href="/admin?status=duplicate"
+    className="rounded-full bg-zinc-100 px-4 py-2 text-sm font-medium"
+  >
+    Дубли
+  </Link>
+
+  <Link
+    href="/admin?status=closed"
+    className="rounded-full bg-zinc-100 px-4 py-2 text-sm font-medium"
+  >
+    Закрытые
+  </Link>
+
+  <Link
+    href="/admin?priority=red"
+    className="rounded-full bg-red-100 px-4 py-2 text-sm font-medium text-red-800"
+  >
+    Срочно
+  </Link>
+
+  <Link
+    href="/admin?priority=yellow"
+    className="rounded-full bg-amber-100 px-4 py-2 text-sm font-medium text-amber-900"
+  >
+    Проверить
+  </Link>
+
+  <Link
+    href="/admin?priority=green"
+    className="rounded-full bg-emerald-100 px-4 py-2 text-sm font-medium text-emerald-800"
+  >
+    Наблюдение
+  </Link>
+</div>
+
 
         <div className="grid gap-4">
           {sortedReports?.length === 0 && (
