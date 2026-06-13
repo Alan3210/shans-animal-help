@@ -3,14 +3,12 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-
-
 export default function ReportForm() {
   const router = useRouter();
 
-  const [locationLat, setLocationLat] = useState<number | null>(null);
-const [locationLng, setLocationLng] = useState<number | null>(null);
-const [locationStatus, setLocationStatus] = useState("");
+  const [photos, setPhotos] = useState<File[]>([]);
+  const [photoPreviews, setPhotoPreviews] = useState<string[]>([]);
+
   const [animalType, setAnimalType] = useState("");
   const [animalCondition, setAnimalCondition] = useState("");
   const [locationAddress, setLocationAddress] = useState("");
@@ -18,41 +16,48 @@ const [locationStatus, setLocationStatus] = useState("");
   const [reporterContact, setReporterContact] = useState("");
   const [consentGiven, setConsentGiven] = useState(false);
 
+  const [locationLat, setLocationLat] = useState<number | null>(null);
+  const [locationLng, setLocationLng] = useState<number | null>(null);
+  const [locationStatus, setLocationStatus] = useState("");
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
-  const [photo, setPhoto] = useState<File | null>(null);
-const [photoPreview, setPhotoPreview] = useState("");
+  function handleGetLocation() {
+    setLocationStatus("");
 
-function handleGetLocation() {
-  setLocationStatus("");
-
-  if (!navigator.geolocation) {
-    setLocationStatus("Ваш браузер не поддерживает геолокацию.");
-    return;
-  }
-
-  setLocationStatus("Определяем местоположение...");
-
-  navigator.geolocation.getCurrentPosition(
-    (position) => {
-      setLocationLat(position.coords.latitude);
-      setLocationLng(position.coords.longitude);
-      setLocationStatus("Местоположение определено.");
-    },
-    () => {
-      setLocationStatus("Не удалось определить местоположение. Введите адрес вручную.");
+    if (!navigator.geolocation) {
+      setLocationStatus("Ваш браузер не поддерживает геолокацию.");
+      return;
     }
-  );
-}
 
+    setLocationStatus("Определяем местоположение...");
 
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setLocationLat(position.coords.latitude);
+        setLocationLng(position.coords.longitude);
+        setLocationStatus("Местоположение определено.");
+      },
+      () => {
+        setLocationStatus(
+          "Не удалось определить местоположение. Введите адрес вручную."
+        );
+      }
+    );
+  }
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setErrorMessage("");
 
-    if (!photo || !animalType || !animalCondition || !locationAddress || !consentGiven) {
+    if (
+      photos.length === 0 ||
+      !animalType ||
+      !animalCondition ||
+      !locationAddress ||
+      !consentGiven
+    ) {
       setErrorMessage("Пожалуйста, заполните обязательные поля.");
       return;
     }
@@ -61,28 +66,29 @@ function handleGetLocation() {
 
     const formData = new FormData();
 
-if (photo) {
-  formData.append("photo", photo);
-  if (locationLat !== null) {
-  formData.append("location_lat", String(locationLat));
-}
+    photos.forEach((photo) => {
+      formData.append("photos", photo);
+    });
 
-if (locationLng !== null) {
-  formData.append("location_lng", String(locationLng));
-}
-}
+    formData.append("animal_type", animalType);
+    formData.append("animal_condition", animalCondition);
+    formData.append("location_address", locationAddress);
+    formData.append("situation_comment", situationComment);
+    formData.append("reporter_contact", reporterContact);
+    formData.append("consent_given", String(consentGiven));
 
-formData.append("animal_type", animalType);
-formData.append("animal_condition", animalCondition);
-formData.append("location_address", locationAddress);
-formData.append("situation_comment", situationComment);
-formData.append("reporter_contact", reporterContact);
-formData.append("consent_given", String(consentGiven));
+    if (locationLat !== null) {
+      formData.append("location_lat", String(locationLat));
+    }
 
-const response = await fetch("/api/reports", {
-  method: "POST",
-  body: formData,
-});
+    if (locationLng !== null) {
+      formData.append("location_lng", String(locationLng));
+    }
+
+    const response = await fetch("/api/reports", {
+      method: "POST",
+      body: formData,
+    });
 
     const result = await response.json();
 
@@ -106,30 +112,38 @@ const response = await fetch("/api/reports", {
 
       <div>
         <label className="mb-2 block font-medium">Фото животного *</label>
-<input
-  type="file"
-  accept="image/*"
-  onChange={(event) => {
-    const file = event.target.files?.[0];
 
-    if (file) {
-      setPhoto(file);
-      setPhotoPreview(URL.createObjectURL(file));
-    }
-  }}
-  className="w-full rounded-2xl border border-zinc-300 p-3"
-/>
+        <input
+          type="file"
+          accept="image/*"
+          multiple
+          onChange={(event) => {
+            const selectedFiles = Array.from(event.target.files || []);
 
-{photoPreview && (
-  <img
-    src={photoPreview}
-    alt="Превью фото"
-    className="mt-3 max-h-64 w-full rounded-2xl object-cover"
-  />
-)}
+            setPhotos(selectedFiles);
+            setPhotoPreviews(
+              selectedFiles.map((file) => URL.createObjectURL(file))
+            );
+          }}
+          className="w-full rounded-2xl border border-zinc-300 p-3"
+        />
+
         <p className="mt-2 text-xs text-zinc-500">
-          Загрузка фото будет подключена следующим шагом.
+          Можно выбрать одно или несколько фото.
         </p>
+
+        {photoPreviews.length > 0 && (
+          <div className="mt-3 grid grid-cols-2 gap-3">
+            {photoPreviews.map((preview, index) => (
+              <img
+                key={preview}
+                src={preview}
+                alt={`Превью фото ${index + 1}`}
+                className="h-32 w-full rounded-2xl object-cover"
+              />
+            ))}
+          </div>
+        )}
       </div>
 
       <div>
@@ -172,23 +186,26 @@ const response = await fetch("/api/reports", {
 
       <div>
         <label className="mb-2 block font-medium">Адрес или ориентир *</label>
+
         <button
-  type="button"
-  onClick={handleGetLocation}
-  className="mb-3 w-full rounded-2xl border border-emerald-700 px-4 py-3 font-semibold text-emerald-800"
->
-  📍 Определить моё местоположение
-</button>
+          type="button"
+          onClick={handleGetLocation}
+          className="mb-3 w-full rounded-2xl border border-emerald-700 px-4 py-3 font-semibold text-emerald-800"
+        >
+          📍 Определить моё местоположение
+        </button>
 
-{locationStatus && (
-  <p className="mb-3 text-sm text-zinc-600">{locationStatus}</p>
-)}
+        {locationStatus && (
+          <p className="mb-3 text-sm text-zinc-600">{locationStatus}</p>
+        )}
 
-{locationLat && locationLng && (
-  <p className="mb-3 rounded-2xl bg-emerald-50 p-3 text-sm text-emerald-800">
-    Координаты сохранены: {locationLat.toFixed(5)}, {locationLng.toFixed(5)}
-  </p>
-)}
+        {locationLat && locationLng && (
+          <p className="mb-3 rounded-2xl bg-emerald-50 p-3 text-sm text-emerald-800">
+            Координаты сохранены: {locationLat.toFixed(5)},{" "}
+            {locationLng.toFixed(5)}
+          </p>
+        )}
+
         <input
           type="text"
           value={locationAddress}

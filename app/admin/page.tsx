@@ -7,10 +7,11 @@ export const dynamic = "force-dynamic"
 export default async function AdminPage({
   searchParams,
 }: {
-  searchParams: Promise<{
-    status?: string;
-    priority?: string;
-  }>;
+searchParams: Promise<{
+  status?: string;
+  priority?: string;
+  q?: string;
+}>;
 }) {
   const filters = await searchParams;
   const { data: reports, error } = await supabaseAdmin
@@ -37,6 +38,25 @@ const filteredReports = reports?.filter((report) => {
 
   if (filters.priority && report.priority !== filters.priority) {
     return false;
+  }
+
+  if (filters.q) {
+    const search = filters.q.toLowerCase();
+
+    const searchableText = [
+      report.location_address,
+      report.situation_comment,
+      report.reporter_phone,
+      report.animal_type,
+      report.animal_condition,
+    ]
+      .filter(Boolean)
+      .join(" ")
+      .toLowerCase();
+
+    if (!searchableText.includes(search)) {
+      return false;
+    }
   }
 
   return true;
@@ -82,6 +102,16 @@ const closedCount =
     <p className="text-sm text-zinc-500">Всего</p>
     <p className="text-2xl font-bold">{totalCount}</p>
   </div>
+
+<form className="mb-6">
+  <input
+    type="text"
+    name="q"
+    defaultValue={filters.q || ""}
+    placeholder="Поиск: адрес, комментарий, телефон, животное..."
+    className="w-full rounded-2xl border border-zinc-300 bg-white px-4 py-3"
+  />
+</form>
 
   <div className="rounded-2xl bg-white p-4 shadow-sm">
     <p className="text-sm text-zinc-500">Новые</p>
