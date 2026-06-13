@@ -118,13 +118,30 @@ export default function ReportForm() {
           accept="image/*"
           multiple
           onChange={(event) => {
-            const selectedFiles = Array.from(event.target.files || []);
+  const selectedFiles = Array.from(event.target.files || []);
 
-            setPhotos(selectedFiles);
-            setPhotoPreviews(
-              selectedFiles.map((file) => URL.createObjectURL(file))
-            );
-          }}
+  if (selectedFiles.length > 5) {
+    setErrorMessage("Можно загрузить не больше 5 фото.");
+    event.target.value = "";
+    return;
+  }
+
+  const tooLargeFile = selectedFiles.find(
+    (file) => file.size > 10 * 1024 * 1024
+  );
+
+  if (tooLargeFile) {
+    setErrorMessage("Каждое фото должно быть не больше 10 МБ.");
+    event.target.value = "";
+    return;
+  }
+
+  setErrorMessage("");
+  setPhotos(selectedFiles);
+  setPhotoPreviews(
+    selectedFiles.map((file) => URL.createObjectURL(file))
+  );
+}}
           className="w-full rounded-2xl border border-zinc-300 p-3"
         />
 
