@@ -2,8 +2,10 @@ import Link from "next/link";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import { formatPriority, formatStatus } from "@/lib/formatters";
 import StatusUpdateForm from "@/components/StatusUpdateForm";
+import CommentForm from "@/components/CommentForm";
 
 export const dynamic = "force-dynamic";
+
 export default async function ReportDetailPage({
   params,
 }: {
@@ -16,6 +18,12 @@ export default async function ReportDetailPage({
     .select("*")
     .eq("id", id)
     .single();
+
+  const { data: comments } = await supabaseAdmin
+    .from("report_comments")
+    .select("*")
+    .eq("report_id", id)
+    .order("created_at", { ascending: false });
 
   if (error || !report) {
     return (
@@ -59,6 +67,12 @@ export default async function ReportDetailPage({
               {formatPriority(report.priority)}
             </span>
 
+            {report.responsible && (
+              <span className="rounded-full bg-blue-100 px-3 py-1 text-sm text-blue-800">
+                👤 {report.responsible}
+              </span>
+            )}
+
             {report.requires_specialist && (
               <span className="rounded-full bg-red-100 px-3 py-1 text-sm text-red-800">
                 ⚠ Профильный специалист
@@ -71,28 +85,28 @@ export default async function ReportDetailPage({
           </h1>
 
           {report.photos?.length > 0 ? (
-  <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
-    {report.photos.map((photoUrl: string, index: number) => (
-      <a
-        key={photoUrl}
-        href={photoUrl}
-        target="_blank"
-        rel="noreferrer"
-        className="block"
-      >
-        <img
-          src={photoUrl}
-          alt={`Фото животного ${index + 1}`}
-          className="h-64 w-full rounded-3xl object-cover"
-        />
-      </a>
-    ))}
-  </div>
-) : (
-  <div className="mb-6 flex h-64 items-center justify-center rounded-3xl bg-zinc-100 text-zinc-500">
-    Фото нет
-  </div>
-)}
+            <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
+              {report.photos.map((photoUrl: string, index: number) => (
+                <a
+                  key={photoUrl}
+                  href={photoUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="block"
+                >
+                  <img
+                    src={photoUrl}
+                    alt={`Фото животного ${index + 1}`}
+                    className="h-64 w-full rounded-3xl object-cover"
+                  />
+                </a>
+              ))}
+            </div>
+          ) : (
+            <div className="mb-6 flex h-64 items-center justify-center rounded-3xl bg-zinc-100 text-zinc-500">
+              Фото нет
+            </div>
+          )}
 
           <div className="space-y-3 text-zinc-700">
             <p>
@@ -133,6 +147,41 @@ export default async function ReportDetailPage({
               reportId={report.id}
               currentStatus={report.status}
             />
+          </div>
+
+          <div className="mt-6 border-t pt-6">
+            <h2 className="mb-3 text-xl font-semibold">
+              Комментарии координаторов
+            </h2>
+
+            {comments && comments.length > 0 ? (
+              <div className="space-y-3">
+                {comments.map((comment) => (
+                  <div
+                    key={comment.id}
+                    className="rounded-2xl bg-stone-50 p-4"
+                  >
+                    <div className="mb-1 flex flex-wrap items-center gap-2 text-sm text-zinc-500">
+                      <span className="font-semibold text-zinc-700">
+                        {comment.author || "Координатор"}
+                      </span>
+
+                      <span>
+                        {new Date(comment.created_at).toLocaleString("ru-RU")}
+                      </span>
+                    </div>
+
+                    <p className="text-zinc-800">{comment.comment}</p>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-zinc-500">
+                Комментариев пока нет.
+              </p>
+            )}
+
+            <CommentForm reportId={report.id} />
           </div>
         </div>
       </section>
