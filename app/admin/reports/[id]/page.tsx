@@ -25,6 +25,12 @@ export default async function ReportDetailPage({
     .eq("report_id", id)
     .order("created_at", { ascending: false });
 
+    const { data: history } = await supabaseAdmin
+  .from("report_history")
+  .select("*")
+  .eq("report_id", id)
+  .order("created_at", { ascending: false });
+
   if (error || !report) {
     return (
       <main className="min-h-screen bg-stone-50 px-5 py-8 text-zinc-900">
@@ -149,7 +155,7 @@ export default async function ReportDetailPage({
             />
           </div>
 
-          <div className="mt-6 border-t pt-6">
+                    <div className="mt-6 border-t pt-6">
             <h2 className="mb-3 text-xl font-semibold">
               Комментарии координаторов
             </h2>
@@ -185,6 +191,37 @@ export default async function ReportDetailPage({
               reportId={report.id}
               defaultAuthor={report.responsible}
             />
+          </div>
+
+          <div className="mt-6 border-t pt-6">
+            <h2 className="mb-3 text-xl font-semibold">История изменений</h2>
+
+            {history && history.length > 0 ? (
+              <div className="space-y-3">
+                {history.map((item) => (
+                  <div
+                    key={item.id}
+                    className="rounded-2xl bg-zinc-50 p-4"
+                  >
+                    <div className="mb-1 flex flex-wrap items-center gap-2 text-sm text-zinc-500">
+                      <span className="font-semibold text-zinc-700">
+                        {item.author || "Координатор"}
+                      </span>
+
+                      <span>
+                        {new Date(item.created_at).toLocaleString("ru-RU")}
+                      </span>
+                    </div>
+
+                    <p className="text-zinc-800">{item.action}</p>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-zinc-500">
+                Истории изменений пока нет.
+              </p>
+            )}
           </div>
         </div>
       </section>

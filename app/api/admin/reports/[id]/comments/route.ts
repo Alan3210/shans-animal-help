@@ -28,5 +28,11 @@ export async function POST(
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
+  await supabaseAdmin.from("report_history").insert({
+    report_id: id,
+    action: "Добавлен комментарий",
+    author,
+  });
+
   return NextResponse.json({ success: true });
 }
