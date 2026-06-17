@@ -3,6 +3,7 @@ import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import { formatPriority, formatStatus } from "@/lib/formatters";
 import StatusUpdateForm from "@/components/StatusUpdateForm";
 import CommentForm from "@/components/CommentForm";
+import ArchiveButton from "@/components/ArchiveButton";
 
 export const dynamic = "force-dynamic";
 
@@ -25,11 +26,11 @@ export default async function ReportDetailPage({
     .eq("report_id", id)
     .order("created_at", { ascending: false });
 
-    const { data: history } = await supabaseAdmin
-  .from("report_history")
-  .select("*")
-  .eq("report_id", id)
-  .order("created_at", { ascending: false });
+  const { data: history } = await supabaseAdmin
+    .from("report_history")
+    .select("*")
+    .eq("report_id", id)
+    .order("created_at", { ascending: false });
 
   if (error || !report) {
     return (
@@ -149,13 +150,17 @@ export default async function ReportDetailPage({
           <div className="mt-6 border-t pt-6">
             <h2 className="mb-3 text-xl font-semibold">Работа с заявкой</h2>
 
-            <StatusUpdateForm
-              reportId={report.id}
-              currentStatus={report.status}
-            />
+            <div className="flex flex-wrap items-center gap-3">
+              <StatusUpdateForm
+                reportId={report.id}
+                currentStatus={report.status}
+              />
+
+              <ArchiveButton reportId={report.id} />
+            </div>
           </div>
 
-                    <div className="mt-6 border-t pt-6">
+          <div className="mt-6 border-t pt-6">
             <h2 className="mb-3 text-xl font-semibold">
               Комментарии координаторов
             </h2>
@@ -182,9 +187,7 @@ export default async function ReportDetailPage({
                 ))}
               </div>
             ) : (
-              <p className="text-sm text-zinc-500">
-                Комментариев пока нет.
-              </p>
+              <p className="text-sm text-zinc-500">Комментариев пока нет.</p>
             )}
 
             <CommentForm
@@ -199,10 +202,7 @@ export default async function ReportDetailPage({
             {history && history.length > 0 ? (
               <div className="space-y-3">
                 {history.map((item) => (
-                  <div
-                    key={item.id}
-                    className="rounded-2xl bg-zinc-50 p-4"
-                  >
+                  <div key={item.id} className="rounded-2xl bg-zinc-50 p-4">
                     <div className="mb-1 flex flex-wrap items-center gap-2 text-sm text-zinc-500">
                       <span className="font-semibold text-zinc-700">
                         {item.author || "Координатор"}

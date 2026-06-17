@@ -19,10 +19,11 @@ searchParams: Promise<{
 }) {
   const filters = await searchParams;
 
-  const { data: reports, error } = await supabaseAdmin
-    .from("animal_reports")
-    .select("*")
-    .order("created_at", { ascending: false });
+const { data: reports, error } = await supabaseAdmin
+  .from("animal_reports")
+  .select("*")
+  .eq("archived", false)
+  .order("created_at", { ascending: false });
 
   if (error) {
     return (
@@ -177,12 +178,21 @@ const oksanaCount =
     </p>
   </div>
 
+<div className="flex gap-3">
   <Link
     href="/admin/table"
     className="inline-block rounded-2xl border border-emerald-700 px-4 py-3 font-semibold text-emerald-800"
   >
     📋 Табличный режим
   </Link>
+
+  <Link
+    href="/admin/archive"
+    className="inline-block rounded-2xl border border-zinc-400 px-4 py-3 font-semibold text-zinc-700"
+  >
+    📦 Архив
+  </Link>
+</div>
 </div>
 
         <div className="mb-6 flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
