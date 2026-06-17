@@ -181,7 +181,10 @@ export default async function ReportDetailPage({
               </p>
             )}
 
-            <CommentForm reportId={report.id} />
+            <CommentForm
+              reportId={report.id}
+              defaultAuthor={report.responsible}
+            />
           </div>
         </div>
       </section>

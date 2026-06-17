@@ -3,11 +3,17 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-export default function CommentForm({ reportId }: { reportId: string }) {
+export default function CommentForm({
+  reportId,
+  defaultAuthor,
+}: {
+  reportId: string;
+  defaultAuthor?: string | null;
+}) {
   const router = useRouter();
 
   const [comment, setComment] = useState("");
-  const [author, setAuthor] = useState("Координатор");
+  const [author, setAuthor] = useState(defaultAuthor || "Координатор");
   const [isSaving, setIsSaving] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
