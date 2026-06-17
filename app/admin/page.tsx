@@ -10,11 +10,12 @@ export const dynamic = "force-dynamic";
 export default async function AdminPage({
   searchParams,
 }: {
-  searchParams: Promise<{
-    status?: string;
-    priority?: string;
-    q?: string;
-  }>;
+searchParams: Promise<{
+  status?: string;
+  priority?: string;
+  responsible?: string;
+  q?: string;
+}>;
 }) {
   const filters = await searchParams;
 
@@ -38,6 +39,15 @@ export default async function AdminPage({
   const filteredReports = reports?.filter((report) => {
     if (filters.status && report.status !== filters.status) return false;
     if (filters.priority && report.priority !== filters.priority) return false;
+    if (filters.responsible === "none" && report.responsible) return false;
+
+if (
+  filters.responsible &&
+  filters.responsible !== "none" &&
+  report.responsible !== filters.responsible
+) {
+  return false;
+}
 
     if (filters.q) {
       const search = filters.q.toLowerCase();
@@ -92,6 +102,21 @@ export default async function AdminPage({
     reports?.filter((report) => report.priority === "yellow").length || 0;
   const greenCount =
     reports?.filter((report) => report.priority === "green").length || 0;
+  const noResponsibleCount =
+    reports?.filter((report) => !report.responsible).length || 0;
+
+  const kristinaCount =
+    reports?.filter((report) => report.responsible === "Кристина").length || 0;
+
+  const alanCount =
+    reports?.filter((report) => report.responsible === "Алан").length || 0;
+
+    const tatyanaCount =
+  reports?.filter((report) => report.responsible === "Татьяна").length || 0;
+
+const oksanaCount =
+  reports?.filter((report) => report.responsible === "Оксана").length || 0;
+
 
   function getTelegramLink(contact?: string | null) {
     if (!contact) return null;
@@ -188,6 +213,44 @@ export default async function AdminPage({
   </Link>
 </div>
 
+<div className="mt-2 flex flex-wrap items-center gap-2">
+  <span className="text-base font-bold text-zinc-700">Быстрые:</span>
+
+  <Link
+    href="/admin?responsible=none"
+    className="rounded-full bg-blue-100 px-4 py-2 text-sm font-medium text-blue-800"
+  >
+    Без ответственного ({noResponsibleCount})
+  </Link>
+
+  <Link
+    href="/admin?responsible=Кристина"
+    className="rounded-full bg-blue-100 px-4 py-2 text-sm font-medium text-blue-800"
+  >
+    Кристина ({kristinaCount})
+  </Link>
+
+<Link
+  href="/admin?responsible=Татьяна"
+  className="rounded-full bg-blue-100 px-4 py-2 text-sm font-medium text-blue-800"
+>
+  Татьяна ({tatyanaCount})
+</Link>
+
+<Link
+  href="/admin?responsible=Оксана"
+  className="rounded-full bg-blue-100 px-4 py-2 text-sm font-medium text-blue-800"
+>
+  Оксана ({oksanaCount})
+</Link>
+
+  <Link
+    href="/admin?responsible=Алан"
+    className="rounded-full bg-blue-100 px-4 py-2 text-sm font-medium text-blue-800"
+  >
+    Алан ({alanCount})
+  </Link>
+</div>
           <form className="w-full md:w-80">
             <input
               type="text"
