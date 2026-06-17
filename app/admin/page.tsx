@@ -168,11 +168,22 @@ const oksanaCount =
   return (
     <main className="min-h-screen bg-stone-50 px-3 py-8 text-zinc-900 xl:px-6">
       <section className="mx-auto max-w-[1800px]">
-        <h1 className="mb-2 text-3xl font-bold">Админка заявок</h1>
+<div className="mb-6 flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+  <div>
+    <h1 className="mb-2 text-3xl font-bold">Админка заявок</h1>
 
-        <p className="mb-6 text-zinc-600">
-          Здесь отображаются заявки, отправленные жителями.
-        </p>
+    <p className="text-zinc-600">
+      Здесь отображаются заявки, отправленные жителями.
+    </p>
+  </div>
+
+  <Link
+    href="/admin/table"
+    className="inline-block rounded-2xl border border-emerald-700 px-4 py-3 font-semibold text-emerald-800"
+  >
+    📋 Табличный режим
+  </Link>
+</div>
 
         <div className="mb-6 flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
           <div className="flex flex-wrap items-center gap-2">
