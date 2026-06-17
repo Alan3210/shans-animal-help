@@ -3,6 +3,7 @@ import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import { formatPriority, formatStatus } from "@/lib/formatters";
 import StatusUpdateForm from "@/components/StatusUpdateForm";
 import ReportsMap from "@/components/ReportsMap";
+import ResponsibleUpdateForm from "@/components/ResponsibleUpdateForm";
 
 export const dynamic = "force-dynamic";
 
@@ -225,7 +226,7 @@ export default async function AdminPage({
                   </div>
                 )}
 
-                <div className="grid gap-5 md:grid-cols-[1fr_1.2fr]">
+                <div className="grid gap-5 md:grid-cols-[1.35fr_0.9fr]">
                   <div>
                     <div className="mb-3 flex flex-wrap gap-2">
                       <span className="rounded-full bg-zinc-100 px-3 py-1 text-sm">
@@ -239,6 +240,12 @@ export default async function AdminPage({
                       <span className="rounded-full bg-amber-100 px-3 py-1 text-sm text-amber-900">
                         {formatPriority(report.priority)}
                       </span>
+
+                      {report.responsible && (
+                        <span className="rounded-full bg-blue-100 px-3 py-1 text-sm text-blue-800">
+                          👤 {report.responsible}
+                        </span>
+                      )}
 
                       {report.requires_specialist && (
                         <span className="rounded-full bg-red-100 px-3 py-1 text-sm text-red-800">
@@ -265,7 +272,7 @@ export default async function AdminPage({
                     <div className="mt-4 flex flex-wrap items-center gap-3">
                       <Link
                         href={`/admin/reports/${report.id}`}
-                        className="inline-block rounded-2xl border border-emerald-700 px-4 py-3 font-semibold text-emerald-800"
+                        className="inline-block rounded-xl border border-emerald-700 px-3 py-2 text-sm font-medium text-emerald-800"
                       >
                         Открыть заявку
                       </Link>
@@ -274,8 +281,16 @@ export default async function AdminPage({
                         reportId={report.id}
                         currentStatus={report.status}
                       />
+
+                      <ResponsibleUpdateForm
+                        reportId={report.id}
+                        currentResponsible={report.responsible}
+                      />
                     </div>
                   </div>
+
+
+
 
                   <div className="rounded-2xl bg-stone-50 p-4">
                     <p className="mb-2 text-zinc-700">
@@ -318,9 +333,9 @@ export default async function AdminPage({
                               }
                               target="_blank"
                               rel="noreferrer"
-                              className="rounded-xl bg-sky-600 px-3 py-2 text-sm font-medium text-white"
+                              className="rounded-xl bg-sky-600 px-2 py-2 text-sm font-medium text-white"
                             >
-                              💬 Telegram
+                              💬 TG
                             </a>
                           )}
                         </div>

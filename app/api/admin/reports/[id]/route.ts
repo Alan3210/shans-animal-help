@@ -8,27 +8,40 @@ export async function PATCH(
   const { id } = await context.params;
   const body = await request.json();
 
-  const { status } = body;
+  const { status, responsible } = body;
 
-  if (!status) {
-    return NextResponse.json(
-      { error: "Статус не указан" },
-      { status: 400 }
-    );
+  const updateData: {
+    status?: string;
+    responsible?: string | null;
+  } = {};
+
+  if (status !== undefined) {
+    const allowedStatuses = ["new", "in_progress", "duplicate", "closed"];
+
+    if (!allowedStatuses.includes(status)) {
+      return NextResponse.json(
+        { error: "Недопустимый статус" },
+        { status: 400 }
+      );
+    }
+
+    updateData.status = status;
   }
 
-  const allowedStatuses = ["new", "in_progress", "duplicate", "closed"];
+  if (responsible !== undefined) {
+    updateData.responsible = responsible || null;
+  }
 
-  if (!allowedStatuses.includes(status)) {
+  if (Object.keys(updateData).length === 0) {
     return NextResponse.json(
-      { error: "Недопустимый статус" },
+      { error: "Нет данных для обновления" },
       { status: 400 }
     );
   }
 
   const { error } = await supabaseAdmin
     .from("animal_reports")
-    .update({ status })
+    .update(updateData)
     .eq("id", id);
 
   if (error) {
