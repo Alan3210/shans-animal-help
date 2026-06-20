@@ -50,24 +50,44 @@ export async function sendTelegramReportNotification(report: TelegramReport) {
 Контакт: ${report.reporter_phone || "—"}${specialistText}
 `;
 
-  const inlineKeyboard = [
-    [
-      {
-        text: "Открыть заявку",
-        url: reportUrl,
-      },
-    ],
-    ...(mapUrl
-      ? [
-          [
-            {
-              text: "📍 Карта",
-              url: mapUrl,
-            },
-          ],
-        ]
-      : []),
-  ];
+  const actionSecret = process.env.TELEGRAM_ACTION_SECRET;
+
+const inProgressUrl = actionSecret
+  ? `${adminBaseUrl}/api/telegram/action?id=${report.id}&action=in_progress&secret=${actionSecret}`
+  : reportUrl;
+
+const closedUrl = actionSecret
+  ? `${adminBaseUrl}/api/telegram/action?id=${report.id}&action=closed&secret=${actionSecret}`
+  : reportUrl;
+
+const inlineKeyboard = [
+  [
+    {
+      text: "Открыть заявку",
+      url: reportUrl,
+    },
+  ],
+  ...(mapUrl
+    ? [
+        [
+          {
+            text: "📍 Карта",
+            url: mapUrl,
+          },
+        ],
+      ]
+    : []),
+  [
+    {
+      text: "🟢 Взять в работу",
+      url: inProgressUrl,
+    },
+    {
+      text: "✅ Закрыть",
+      url: closedUrl,
+    },
+  ],
+];
 
   const response = await fetch(
     `https://api.telegram.org/bot${botToken}/sendMessage`,
