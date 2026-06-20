@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import { formatPriority, formatStatus } from "@/lib/formatters";
+import RestoreButton from "@/components/RestoreButton";
 
 export const dynamic = "force-dynamic";
 
@@ -88,12 +89,16 @@ export default async function AdminArchivePage() {
                   </td>
 
                   <td className="px-4 py-3">
-                    <Link
-                      href={`/admin/reports/${report.id}`}
-                      className="font-semibold text-emerald-700"
-                    >
-                      Открыть
-                    </Link>
+                    <div className="flex items-center gap-3">
+                      <Link
+                        href={`/admin/reports/${report.id}`}
+                        className="font-semibold text-emerald-700"
+                      >
+                        Открыть
+                      </Link>
+
+                      <RestoreButton reportId={report.id} />
+                    </div>
                   </td>
                 </tr>
               ))}
