@@ -51,11 +51,13 @@ export default function ReportForm() {
     event.preventDefault();
     setErrorMessage("");
 
+    const hasCoordinates = locationLat !== null && locationLng !== null;
+
     if (
       photos.length === 0 ||
       !animalType ||
       !animalCondition ||
-      !locationAddress ||
+      (!locationAddress && !hasCoordinates) ||
       !consentGiven
     ) {
       setErrorMessage("Пожалуйста, заполните обязательные поля.");
@@ -202,7 +204,7 @@ export default function ReportForm() {
       </div>
 
       <div>
-        <label className="mb-2 block font-medium">Адрес или ориентир *</label>
+        <label className="mb-2 block font-medium">Адрес или ориентир </label>
 
         <button
           type="button"
@@ -227,7 +229,7 @@ export default function ReportForm() {
           type="text"
           value={locationAddress}
           onChange={(event) => setLocationAddress(event.target.value)}
-          placeholder="Например: Туапсе, у остановки..."
+          placeholder="Можно оставить пустым, если определили геолокацию"
           className="w-full rounded-2xl border border-zinc-300 p-3"
         />
       </div>
