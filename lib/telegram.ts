@@ -32,6 +32,17 @@ export async function sendTelegramReportNotification(report: TelegramReport) {
       ? `https://www.google.com/maps?q=${report.location_lat},${report.location_lng}`
       : null;
 
+  const actionSecret = process.env.TELEGRAM_ACTION_SECRET;
+  const encodedSecret = encodeURIComponent(actionSecret || "");
+
+  const inProgressUrl = actionSecret
+    ? `${adminBaseUrl}/api/telegram/action?id=${report.id}&action=in_progress&secret=${encodedSecret}`
+    : reportUrl;
+
+  const closedUrl = actionSecret
+    ? `${adminBaseUrl}/api/telegram/action?id=${report.id}&action=closed&secret=${encodedSecret}`
+    : reportUrl;
+
   const specialistText = report.requires_specialist
     ? "\n\n⚠ Требуется оценка профильным специалистом"
     : "";
@@ -50,44 +61,34 @@ export async function sendTelegramReportNotification(report: TelegramReport) {
 Контакт: ${report.reporter_phone || "—"}${specialistText}
 `;
 
-  const actionSecret = process.env.TELEGRAM_ACTION_SECRET;
-
-const inProgressUrl = actionSecret
-  ? `${adminBaseUrl}/api/telegram/action?id=${report.id}&action=in_progress&secret=${actionSecret}`
-  : reportUrl;
-
-const closedUrl = actionSecret
-  ? `${adminBaseUrl}/api/telegram/action?id=${report.id}&action=closed&secret=${actionSecret}`
-  : reportUrl;
-
-const inlineKeyboard = [
-  [
-    {
-      text: "Открыть заявку",
-      url: reportUrl,
-    },
-  ],
-  ...(mapUrl
-    ? [
-        [
-          {
-            text: "📍 Карта",
-            url: mapUrl,
-          },
-        ],
-      ]
-    : []),
-  [
-    {
-      text: "🟢 Взять в работу",
-      url: inProgressUrl,
-    },
-    {
-      text: "✅ Закрыть",
-      url: closedUrl,
-    },
-  ],
-];
+  const inlineKeyboard = [
+    [
+      {
+        text: "Открыть заявку",
+        url: reportUrl,
+      },
+    ],
+    ...(mapUrl
+      ? [
+          [
+            {
+              text: "📍 Карта",
+              url: mapUrl,
+            },
+          ],
+        ]
+      : []),
+    [
+      {
+        text: "🟢 Взять в работу",
+        url: inProgressUrl,
+      },
+      {
+        text: "✅ Закрыть",
+        url: closedUrl,
+      },
+    ],
+  ];
 
   const response = await fetch(
     `https://api.telegram.org/bot${botToken}/sendMessage`,
@@ -107,5 +108,10 @@ const inlineKeyboard = [
   );
 
   const result = await response.json();
+
   console.log("TELEGRAM RESULT:", result);
+
+  if (!result.ok) {
+    console.error("TELEGRAM ERROR:", result);
+  }
 }
