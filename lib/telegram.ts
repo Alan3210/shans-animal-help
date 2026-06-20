@@ -22,16 +22,21 @@ export async function sendTelegramReportNotification(report: TelegramReport) {
     return;
   }
 
-  const adminUrl = process.env.ADMIN_BASE_URL || "http://localhost:3000/admin";
+  const adminBaseUrl =
+    process.env.ADMIN_BASE_URL || "https://shans-animal-help.vercel.app";
+
+  const reportUrl = `${adminBaseUrl}/admin/reports/${report.id}`;
+
+  const mapUrl =
+    report.location_lat && report.location_lng
+      ? `https://www.google.com/maps?q=${report.location_lat},${report.location_lng}`
+      : null;
 
   const specialistText = report.requires_specialist
     ? "\n\n⚠ Требуется оценка профильным специалистом"
     : "";
 
-  const mapLink =
-    report.location_lat && report.location_lng
-      ? `\nКарта: https://www.google.com/maps?q=${report.location_lat},${report.location_lng}`
-      : "";
+  const mapText = mapUrl ? `\nКарта: ${mapUrl}` : "";
 
   const message = `
 🆘 Новая заявка #${report.id.slice(0, 8)}
@@ -39,13 +44,30 @@ export async function sendTelegramReportNotification(report: TelegramReport) {
 Приоритет: ${formatPriority(report.priority)}
 Тип: ${report.animal_type}
 Состояние: ${report.animal_condition}
-Место: ${report.location_address}${mapLink}
+Место: ${report.location_address}${mapText}
 Комментарий: ${report.situation_comment || "—"}
 
 Контакт: ${report.reporter_phone || "—"}${specialistText}
-
-Открыть админку: ${adminUrl}
 `;
+
+  const inlineKeyboard = [
+    [
+      {
+        text: "Открыть заявку",
+        url: reportUrl,
+      },
+    ],
+    ...(mapUrl
+      ? [
+          [
+            {
+              text: "📍 Карта",
+              url: mapUrl,
+            },
+          ],
+        ]
+      : []),
+  ];
 
   const response = await fetch(
     `https://api.telegram.org/bot${botToken}/sendMessage`,
@@ -58,14 +80,7 @@ export async function sendTelegramReportNotification(report: TelegramReport) {
         chat_id: chatId,
         text: message,
         reply_markup: {
-          inline_keyboard: [
-            [
-              {
-                text: "Открыть админку",
-                url: "https://shans-animal-help.vercel.app/admin",
-              },
-            ],
-          ],
+          inline_keyboard: inlineKeyboard,
         },
       }),
     }
