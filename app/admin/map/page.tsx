@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
-import ReportsMap from "@/components/ReportsMap";
+import ReportsMap from "@/components/ReportsMapClient";
 
 export const dynamic = "force-dynamic";
 
