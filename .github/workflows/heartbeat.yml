@@ -1,0 +1,16 @@
+name: Supabase Heartbeat
+
+on:
+  schedule:
+    - cron: "0 6 * * 1,3,5"
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Ping health endpoint
+        run: |
+          curl --fail --show-error --location --max-time 120 \
+          https://shans-animal-help.vercel.app/api/health
