@@ -1,0 +1,28 @@
+name: Weekly Backup
+
+on:
+  schedule:
+    - cron: "0 7 * * 0"
+  workflow_dispatch:
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Create backup filename
+        run: echo "BACKUP_FILE=backup-$(date -u +'%Y-%m-%d-%H-%M-%S').json" >> $GITHUB_ENV
+
+      - name: Download backup
+        run: |
+          curl --fail --show-error --location --max-time 180 \
+            -H "Authorization: Bearer ${{ secrets.BACKUP_SECRET }}" \
+            "https://shans-animal-help.vercel.app/api/backup" \
+            -o "$BACKUP_FILE"
+
+      - name: Upload backup artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: shans-backup
+          path: ${{ env.BACKUP_FILE }}
+          retention-days: 30
