@@ -13,12 +13,63 @@ jobs:
       - name: Create backup filename
         run: echo "BACKUP_FILE=backup-$(date -u +'%Y-%m-%d-%H-%M-%S').json" >> $GITHUB_ENV
 
-      - name: Download backup
+      - name: Download animal_reports
         run: |
-          curl --fail --show-error --location --max-time 180 \
-            -H "Authorization: Bearer ${{ secrets.BACKUP_SECRET }}" \
-            "https://shans-animal-help.vercel.app/api/backup" \
-            -o "$BACKUP_FILE"
+          curl --fail --show-error --location --max-time 120 \
+            "${{ secrets.SUPABASE_URL }}/rest/v1/animal_reports?select=*" \
+            -H "apikey: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}" \
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}" \
+            -H "Accept: application/json" \
+            -o animal_reports.json
+
+      - name: Download report_comments
+        run: |
+          curl --fail --show-error --location --max-time 120 \
+            "${{ secrets.SUPABASE_URL }}/rest/v1/report_comments?select=*" \
+            -H "apikey: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}" \
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}" \
+            -H "Accept: application/json" \
+            -o report_comments.json
+
+      - name: Download report_history
+        run: |
+          curl --fail --show-error --location --max-time 120 \
+            "${{ secrets.SUPABASE_URL }}/rest/v1/report_history?select=*" \
+            -H "apikey: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}" \
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}" \
+            -H "Accept: application/json" \
+            -o report_history.json
+
+      - name: Build backup file
+        run: |
+          python3 - <<'PY'
+          import json
+          from datetime import datetime, timezone
+
+          def load(path):
+              with open(path, "r", encoding="utf-8") as f:
+                  return json.load(f)
+
+          backup = {
+              "backup_created_at": datetime.now(timezone.utc).isoformat(),
+              "counts": {
+                  "animal_reports": len(load("animal_reports.json")),
+                  "report_comments": len(load("report_comments.json")),
+                  "report_history": len(load("report_history.json")),
+              },
+              "tables": {
+                  "animal_reports": load("animal_reports.json"),
+                  "report_comments": load("report_comments.json"),
+                  "report_history": load("report_history.json"),
+              },
+          }
+
+          import os
+          output = os.environ["BACKUP_FILE"]
+
+          with open(output, "w", encoding="utf-8") as f:
+              json.dump(backup, f, ensure_ascii=False, indent=2)
+          PY
 
       - name: Upload backup artifact
         uses: actions/upload-artifact@v4
