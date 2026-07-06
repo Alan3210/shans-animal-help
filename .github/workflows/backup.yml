@@ -45,26 +45,30 @@ jobs:
           python3 - <<'PY'
           import json
           from datetime import datetime, timezone
+          import os
 
           def load(path):
               with open(path, "r", encoding="utf-8") as f:
                   return json.load(f)
 
+          animal_reports = load("animal_reports.json")
+          report_comments = load("report_comments.json")
+          report_history = load("report_history.json")
+
           backup = {
               "backup_created_at": datetime.now(timezone.utc).isoformat(),
               "counts": {
-                  "animal_reports": len(load("animal_reports.json")),
-                  "report_comments": len(load("report_comments.json")),
-                  "report_history": len(load("report_history.json")),
+                  "animal_reports": len(animal_reports),
+                  "report_comments": len(report_comments),
+                  "report_history": len(report_history),
               },
               "tables": {
-                  "animal_reports": load("animal_reports.json"),
-                  "report_comments": load("report_comments.json"),
-                  "report_history": load("report_history.json"),
+                  "animal_reports": animal_reports,
+                  "report_comments": report_comments,
+                  "report_history": report_history,
               },
           }
 
-          import os
           output = os.environ["BACKUP_FILE"]
 
           with open(output, "w", encoding="utf-8") as f:
