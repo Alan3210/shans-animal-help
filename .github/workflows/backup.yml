@@ -10,46 +10,68 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Check secrets presence
+      - name: Download animal_reports
         run: |
-          if [ -z "${{ secrets.SUPABASE_URL }}" ]; then
-            echo "SUPABASE_URL is empty"
-            exit 1
-          fi
-
-          if [ -z "${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}" ]; then
-            echo "SUPABASE_SERVICE_ROLE_KEY is empty"
-            exit 1
-          fi
-
-          echo "Secrets exist"
-
-      - name: Test animal_reports request
-        run: |
-          echo "Testing animal_reports..."
-          curl --show-error --location --max-time 120 \
-            "${{ secrets.SUPABASE_URL }}/rest/v1/animal_reports?select=*&limit=1" \
+          curl --fail --show-error --location --max-time 120 \
+            "${{ secrets.SUPABASE_URL }}/rest/v1/animal_reports?select=*" \
             -H "apikey: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}" \
             -H "Authorization: Bearer ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}" \
             -H "Accept: application/json" \
-            -w "\nHTTP_STATUS:%{http_code}\n"
+            -o animal_reports.json
 
-      - name: Test report_comments request
+      - name: Download report_comments
         run: |
-          echo "Testing report_comments..."
-          curl --show-error --location --max-time 120 \
-            "${{ secrets.SUPABASE_URL }}/rest/v1/report_comments?select=*&limit=1" \
+          curl --fail --show-error --location --max-time 120 \
+            "${{ secrets.SUPABASE_URL }}/rest/v1/report_comments?select=*" \
             -H "apikey: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}" \
             -H "Authorization: Bearer ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}" \
             -H "Accept: application/json" \
-            -w "\nHTTP_STATUS:%{http_code}\n"
+            -o report_comments.json
 
-      - name: Test report_history request
+      - name: Download report_history
         run: |
-          echo "Testing report_history..."
-          curl --show-error --location --max-time 120 \
-            "${{ secrets.SUPABASE_URL }}/rest/v1/report_history?select=*&limit=1" \
+          curl --fail --show-error --location --max-time 120 \
+            "${{ secrets.SUPABASE_URL }}/rest/v1/report_history?select=*" \
             -H "apikey: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}" \
             -H "Authorization: Bearer ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}" \
             -H "Accept: application/json" \
-            -w "\nHTTP_STATUS:%{http_code}\n"
+            -o report_history.json
+
+      - name: Build backup file
+        run: |
+          python3 - <<'PY'
+          import json
+          from datetime import datetime, timezone
+
+          def load(path):
+              with open(path, "r", encoding="utf-8") as f:
+                  return json.load(f)
+
+          animal_reports = load("animal_reports.json")
+          report_comments = load("report_comments.json")
+          report_history = load("report_history.json")
+
+          backup = {
+              "backup_created_at": datetime.now(timezone.utc).isoformat(),
+              "counts": {
+                  "animal_reports": len(animal_reports),
+                  "report_comments": len(report_comments),
+                  "report_history": len(report_history),
+              },
+              "tables": {
+                  "animal_reports": animal_reports,
+                  "report_comments": report_comments,
+                  "report_history": report_history,
+              },
+          }
+
+          with open("shans-backup.json", "w", encoding="utf-8") as f:
+              json.dump(backup, f, ensure_ascii=False, indent=2)
+          PY
+
+      - name: Upload backup artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: shans-backup
+          path: shans-backup.json
+          retention-days: 30
