@@ -44,7 +44,23 @@ export async function GET(request: Request) {
   }
 
   if (authHeader !== `Bearer ${expectedSecret}`) {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    if (authHeader !== `Bearer ${expectedSecret}`) {
+  return NextResponse.json(
+    {
+      error: "Forbidden",
+      debug: {
+        has_backup_secret: Boolean(expectedSecret),
+        backup_secret_length: expectedSecret?.length || 0,
+        auth_header_exists: Boolean(authHeader),
+        auth_header_length: authHeader?.length || 0,
+        expected_header_length: expectedSecret
+          ? `Bearer ${expectedSecret}`.length
+          : 0,
+      },
+    },
+    { status: 403 }
+  );
+}
   }
 
   try {
