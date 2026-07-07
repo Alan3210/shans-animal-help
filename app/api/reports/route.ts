@@ -158,6 +158,7 @@ export async function POST(request: Request) {
       location_lng,
       situation_comment,
       reporter_phone: reporter_contact,
+      photos: uploadedPhotoUrls,
     });
 
     return NextResponse.json({

@@ -11,6 +11,7 @@ type TelegramReport = {
   location_lng?: number | null;
   situation_comment?: string | null;
   reporter_phone?: string | null;
+  photos?: string[];
 };
 
 export async function sendTelegramReportNotification(report: TelegramReport) {
@@ -90,22 +91,37 @@ export async function sendTelegramReportNotification(report: TelegramReport) {
     ],
   ];
 
-  const response = await fetch(
-    `https://api.telegram.org/bot${botToken}/sendMessage`,
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
+const firstPhoto = report.photos?.[0];
+
+const telegramMethod = firstPhoto ? "sendPhoto" : "sendMessage";
+
+const payload = firstPhoto
+  ? {
+      chat_id: chatId,
+      photo: firstPhoto,
+      caption: message,
+      reply_markup: {
+        inline_keyboard: inlineKeyboard,
       },
-      body: JSON.stringify({
-        chat_id: chatId,
-        text: message,
-        reply_markup: {
-          inline_keyboard: inlineKeyboard,
-        },
-      }),
     }
-  );
+  : {
+      chat_id: chatId,
+      text: message,
+      reply_markup: {
+        inline_keyboard: inlineKeyboard,
+      },
+    };
+
+const response = await fetch(
+  `https://api.telegram.org/bot${botToken}/${telegramMethod}`,
+  {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(payload),
+  }
+);
 
   const result = await response.json();
 
