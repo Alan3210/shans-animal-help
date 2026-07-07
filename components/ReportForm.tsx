@@ -14,7 +14,7 @@ export default function ReportForm() {
   const [locationAddress, setLocationAddress] = useState("");
   const [situationComment, setSituationComment] = useState("");
   const [reporterContact, setReporterContact] = useState("");
-  const [consentGiven, setConsentGiven] = useState(false);
+  const consentGiven = true;
 
   const [locationLat, setLocationLat] = useState<number | null>(null);
   const [locationLng, setLocationLng] = useState<number | null>(null);
@@ -105,7 +105,7 @@ export default function ReportForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-5">
+    <form onSubmit={handleSubmit} className="flex flex-col gap-4">
       {errorMessage && (
         <div className="rounded-2xl bg-red-50 p-4 text-sm text-red-800">
           {errorMessage}
@@ -113,14 +113,12 @@ export default function ReportForm() {
       )}
 
       <div>
-        <label className="mb-2 block font-medium">Фото животного *</label>
-
-        <div>
+                <div>
   <label
     htmlFor="report-photos"
     className="block w-full cursor-pointer rounded-2xl border border-emerald-700 bg-white px-5 py-4 text-center text-base font-semibold text-emerald-800"
   >
-    Добавьте фото
+    Добавьте фото (одно или несколько)
   </label>
 
   <input
@@ -163,9 +161,7 @@ export default function ReportForm() {
   )}
 </div>
 
-        <p className="mt-2 text-xs text-zinc-500">
-          Можно выбрать одно или несколько фото.
-        </p>
+
 
         {photoPreviews.length > 0 && (
           <div className="mt-3 grid grid-cols-2 gap-3">
@@ -182,13 +178,12 @@ export default function ReportForm() {
       </div>
 
       <div>
-        <label className="mb-2 block font-medium">Тип животного *</label>
-        <select
+               <select
           value={animalType}
           onChange={(event) => setAnimalType(event.target.value)}
           className="w-full rounded-2xl border border-zinc-300 p-3"
         >
-          <option value="">Выберите тип</option>
+          <option value="">Выберите тип животного</option>
           <option>Собака</option>
           <option>Кошка</option>
           <option>Щенок</option>
@@ -201,13 +196,13 @@ export default function ReportForm() {
       </div>
 
       <div>
-        <label className="mb-2 block font-medium">Состояние животного *</label>
+   
         <select
             value={animalCondition}
             onChange={(event) => setAnimalCondition(event.target.value)}
             className="w-full rounded-2xl border border-zinc-300 p-3"
           >
-            <option value="">Выберите состояние</option>
+            <option value="">Выберите состояние животного</option>
             <option>Травма</option>
             <option>ДТП</option>
             <option>Истощение</option>
@@ -222,7 +217,7 @@ export default function ReportForm() {
       </div>
 
       <div>
-        <label className="mb-2 block font-medium">Адрес или ориентир </label>
+  
 
         <button
           type="button"
@@ -247,44 +242,33 @@ export default function ReportForm() {
           type="text"
           value={locationAddress}
           onChange={(event) => setLocationAddress(event.target.value)}
-          placeholder="Можно оставить пустым, если определили геолокацию"
+          placeholder="Тут можно вписать адрес"
           className="w-full rounded-2xl border border-zinc-300 p-3"
         />
       </div>
 
       <div>
-        <label className="mb-2 block font-medium">Комментарий</label>
+        
         <textarea
           value={situationComment}
           onChange={(event) => setSituationComment(event.target.value)}
-          placeholder="Коротко опишите, что произошло..."
-          className="min-h-28 w-full rounded-2xl border border-zinc-300 p-3"
+          placeholder="А тут - оставить короткий комментарий..."
+          className="block min-h-28 w-full resize-none rounded-2xl border border-zinc-300 p-3"
         />
       </div>
 
       <div>
-        <label className="mb-2 block font-medium">Контакт для связи</label>
+  
         <input
           type="text"
           value={reporterContact}
           onChange={(event) => setReporterContact(event.target.value)}
-          placeholder="Телефон или Telegram"
+          placeholder="Ваш контакт для связи (телефон или Telegram)"
           className="w-full rounded-2xl border border-zinc-300 p-3"
         />
       </div>
 
-      <label className="flex gap-3 text-sm">
-        <input
-          type="checkbox"
-          checked={consentGiven}
-          onChange={(event) => setConsentGiven(event.target.checked)}
-          className="mt-1"
-        />
-        <span>
-          Я согласен(на) на обработку отправленных данных для передачи заявки
-          волонтёрам.
-        </span>
-      </label>
+
 
       <button
         type="submit"
