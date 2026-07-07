@@ -31,12 +31,13 @@ export default function ReportForm() {
       return;
     }
 
-    setLocationStatus("Определяем местоположение...");
+
 
     navigator.geolocation.getCurrentPosition(
       (position) => {
         setLocationLat(position.coords.latitude);
         setLocationLng(position.coords.longitude);
+
       },
       () => {
         setLocationStatus(
