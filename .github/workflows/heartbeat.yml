@@ -13,4 +13,4 @@ jobs:
       - name: Ping health endpoint
         run: |
           curl --fail --show-error --location --max-time 120 \
-          https://shans-animal-help.vercel.app/api/health
+          https://shans.vercel.app/api/health
