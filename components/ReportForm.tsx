@@ -252,7 +252,7 @@ export default function ReportForm() {
         <textarea
           value={situationComment}
           onChange={(event) => setSituationComment(event.target.value)}
-          placeholder="А тут - оставить короткий комментарий..."
+          placeholder="А тут - короткий комментарий"
           className="block min-h-28 w-full resize-none rounded-2xl border border-zinc-300 p-3"
         />
       </div>
@@ -263,7 +263,7 @@ export default function ReportForm() {
           type="text"
           value={reporterContact}
           onChange={(event) => setReporterContact(event.target.value)}
-          placeholder="Ваш контакт для связи (телефон или Telegram)"
+          placeholder="Ваш контакт для связи (телефон или TG)"
           className="w-full rounded-2xl border border-zinc-300 p-3"
         />
       </div>
