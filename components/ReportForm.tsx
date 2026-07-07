@@ -218,7 +218,7 @@ export default function ReportForm() {
 
       <div>
   
-
+    <div className="flex flex-col gap-4">
         <button
           type="button"
           onClick={handleGetLocation}
@@ -245,6 +245,7 @@ export default function ReportForm() {
           placeholder="Тут можно вписать адрес"
           className="w-full rounded-2xl border border-zinc-300 p-3"
         />
+        </div>
       </div>
 
       <div>
