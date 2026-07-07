@@ -27,11 +27,7 @@ export default function Home() {
   />
 </div>
           
-          
-          
-          <h1 className="mb-4 text-center text-3xl font-bold leading-tight">
-            Шанс. Помощь животным
-          </h1>
+        
           <p className="mb-6 text-center text-base leading-relaxed text-zinc-700">
             Увидели животное, которому может быть нужна помощь? Отправьте фото,
             место и короткое описание — волонтёры получат заявку.
@@ -71,8 +67,8 @@ export default function Home() {
 
           {!policyAccepted && (
             <p className="mt-3 text-center text-sm leading-relaxed text-zinc-600">
-              Чтобы отправить заявку, сначала подтвердите ознакомление с
-              политикой.
+              Чтобы отправить заявку, подтвердите ознакомление с
+              политикой обработки персональных данных.
             </p>
           )}
 
