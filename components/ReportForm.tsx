@@ -116,7 +116,7 @@ export default function ReportForm() {
                 <div>
   <label
     htmlFor="report-photos"
-    className="block w-full cursor-pointer rounded-2xl border border-emerald-700 bg-white px-5 py-4 text-center text-base font-semibold text-emerald-800"
+    className="block w-full cursor-pointer rounded-2xl border border-emerald-700 bg-white px-3 py-4 text-center text-sm font-semibold whitespace-nowrap text-emerald-800 sm:text-base"
   >
     Добавьте фото (одно или несколько)
   </label>
@@ -222,7 +222,7 @@ export default function ReportForm() {
         <button
           type="button"
           onClick={handleGetLocation}
-          className="mb-3 w-full rounded-2xl border border-emerald-700 px-4 py-3 font-semibold text-emerald-800"
+          className="w-full rounded-2xl border border-emerald-700 px-3 py-4 text-sm font-semibold whitespace-nowrap text-emerald-800 sm:text-base"
         >
           📍 Определить моё местоположение
         </button>
