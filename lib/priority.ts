@@ -3,6 +3,7 @@ export function calculatePriority(animalType: string, animalCondition: string) {
     "Травма",
     "Не встаёт",
     "Мазут / грязь / нефтепродукты",
+    "ДТП",
   ];
 
   const redAnimalTypes = ["Щенок", "Котёнок", "Дельфин"];
@@ -11,6 +12,7 @@ export function calculatePriority(animalType: string, animalCondition: string) {
     "Истощение",
     "Потеряшка с ошейником",
     "Агрессия",
+    "Отлов",
   ];
 
   if (redConditions.includes(animalCondition)) return "red";

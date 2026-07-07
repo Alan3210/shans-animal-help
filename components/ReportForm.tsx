@@ -115,37 +115,53 @@ export default function ReportForm() {
       <div>
         <label className="mb-2 block font-medium">Фото животного *</label>
 
-        <input
-          type="file"
-          accept="image/*"
-          multiple
-          onChange={(event) => {
-  const selectedFiles = Array.from(event.target.files || []);
+        <div>
+  <label
+    htmlFor="report-photos"
+    className="block w-full cursor-pointer rounded-2xl border border-emerald-700 bg-white px-5 py-4 text-center text-base font-semibold text-emerald-800"
+  >
+    Добавьте фото
+  </label>
 
-  if (selectedFiles.length > 5) {
-    setErrorMessage("Можно загрузить не больше 5 фото.");
-    event.target.value = "";
-    return;
-  }
+  <input
+    id="report-photos"
+    type="file"
+    accept="image/*"
+    multiple
+    onChange={(event) => {
+      const selectedFiles = Array.from(event.target.files || []);
 
-  const tooLargeFile = selectedFiles.find(
-    (file) => file.size > 10 * 1024 * 1024
-  );
+      if (selectedFiles.length > 5) {
+        setErrorMessage("Можно загрузить не больше 5 фото.");
+        event.target.value = "";
+        return;
+      }
 
-  if (tooLargeFile) {
-    setErrorMessage("Каждое фото должно быть не больше 10 МБ.");
-    event.target.value = "";
-    return;
-  }
+      const tooLargeFile = selectedFiles.find(
+        (file) => file.size > 10 * 1024 * 1024
+      );
 
-  setErrorMessage("");
-  setPhotos(selectedFiles);
-  setPhotoPreviews(
-    selectedFiles.map((file) => URL.createObjectURL(file))
-  );
-}}
-          className="w-full rounded-2xl border border-zinc-300 p-3"
-        />
+      if (tooLargeFile) {
+        setErrorMessage("Каждое фото должно быть не больше 10 МБ.");
+        event.target.value = "";
+        return;
+      }
+
+      setErrorMessage("");
+      setPhotos(selectedFiles);
+      setPhotoPreviews(
+        selectedFiles.map((file) => URL.createObjectURL(file))
+      );
+    }}
+    className="sr-only"
+  />
+
+  {photos.length > 0 && (
+    <p className="mt-2 text-sm text-emerald-700">
+      Добавлено фото: {photos.length}
+    </p>
+  )}
+</div>
 
         <p className="mt-2 text-xs text-zinc-500">
           Можно выбрать одно или несколько фото.
@@ -187,20 +203,22 @@ export default function ReportForm() {
       <div>
         <label className="mb-2 block font-medium">Состояние животного *</label>
         <select
-          value={animalCondition}
-          onChange={(event) => setAnimalCondition(event.target.value)}
-          className="w-full rounded-2xl border border-zinc-300 p-3"
-        >
-          <option value="">Выберите состояние</option>
-          <option>Травма</option>
-          <option>Истощение</option>
-          <option>Мазут / грязь / нефтепродукты</option>
-          <option>Не встаёт</option>
-          <option>Потеряшка с ошейником</option>
-          <option>Агрессия</option>
-          <option>Просто бездомное животное</option>
-          <option>Другое</option>
-        </select>
+            value={animalCondition}
+            onChange={(event) => setAnimalCondition(event.target.value)}
+            className="w-full rounded-2xl border border-zinc-300 p-3"
+          >
+            <option value="">Выберите состояние</option>
+            <option>Травма</option>
+            <option>ДТП</option>
+            <option>Истощение</option>
+            <option>Мазут / грязь / нефтепродукты</option>
+            <option>Не встаёт</option>
+            <option>Отлов</option>
+            <option>Потеряшка с ошейником</option>
+            <option>Агрессия</option>
+            <option>Просто бездомное животное</option>
+            <option>Другое</option>
+          </select>
       </div>
 
       <div>
