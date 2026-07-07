@@ -263,7 +263,7 @@ export default function ReportForm() {
           type="text"
           value={reporterContact}
           onChange={(event) => setReporterContact(event.target.value)}
-          placeholder="Ваш контакт для связи (телефон или TG)"
+          placeholder="Контакт для связи (телефон или TG)"
           className="w-full rounded-2xl border border-zinc-300 p-3"
         />
       </div>
