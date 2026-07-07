@@ -208,7 +208,7 @@ export default function ReportForm() {
             <option>Истощение</option>
             <option>Мазут / грязь / нефтепродукты</option>
             <option>Не встаёт</option>
-            <option>Отлов</option>
+            <option>Работает отлов</option>
             <option>Потеряшка с ошейником</option>
             <option>Агрессия</option>
             <option>Просто бездомное животное</option>

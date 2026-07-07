@@ -12,7 +12,7 @@ export function calculatePriority(animalType: string, animalCondition: string) {
     "Истощение",
     "Потеряшка с ошейником",
     "Агрессия",
-    "Отлов",
+    "Работает отлов",
   ];
 
   if (redConditions.includes(animalCondition)) return "red";
