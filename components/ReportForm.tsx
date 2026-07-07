@@ -37,7 +37,6 @@ export default function ReportForm() {
       (position) => {
         setLocationLat(position.coords.latitude);
         setLocationLng(position.coords.longitude);
-        setLocationStatus("Местоположение определено.");
       },
       () => {
         setLocationStatus(
