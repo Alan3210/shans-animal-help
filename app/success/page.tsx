@@ -9,17 +9,15 @@ export default function SuccessPage({
     <main className="min-h-screen bg-stone-50 px-5 py-8 text-zinc-900">
       <section className="mx-auto flex min-h-[80vh] max-w-md flex-col justify-center">
         <div className="rounded-3xl bg-white p-6 shadow-sm">
-          <h1 className="mb-4 text-2xl font-bold">
-            Спасибо! Заявка отправлена волонтёрам.
+          <h1 className="mb-6 text-center text-2xl font-bold">
+            Спасибо! Заявка отправлена
           </h1>
 
           {searchParams.id && (
-            <p className="mb-4 text-zinc-700">Номер заявки: #{searchParams.id}</p>
+            <p className="-mt-2 mb-6 text-center text-zinc-700">
+              Номер заявки: #{searchParams.id}
+            </p>
           )}
-
-          <p className="mb-6 rounded-2xl bg-amber-50 p-4 text-sm text-amber-900">
-            Если животное в опасности, оставайтесь на безопасном расстоянии.
-          </p>
 
           <div className="space-y-3">
             <Link
