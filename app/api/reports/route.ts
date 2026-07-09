@@ -10,6 +10,8 @@ async function getAddressFromCoordinates(
   if (lat === null || lng === null) return "";
 
   try {
+    console.log("Reverse geocoding started...");
+
     const response = await fetch(
       `https://geocode.maps.co/reverse?lat=${lat}&lon=${lng}`,
       {
@@ -19,7 +21,10 @@ async function getAddressFromCoordinates(
       }
     );
 
-    if (!response.ok) return "";
+    if (!response.ok) {
+      console.log("Reverse geocoding failed:", response.status);
+      return "";
+    }
 
     const data = await response.json();
     const address = data.address || {};
@@ -44,7 +49,11 @@ async function getAddressFromCoordinates(
       district,
     ].filter(Boolean);
 
-    return parts.join(", ") || data.display_name || "";
+    const result = parts.join(", ") || data.display_name || "";
+
+    console.log("Reverse geocoding completed:", result);
+
+    return result;
   } catch (error) {
     console.error("Reverse geocoding error:", error);
     return "";
@@ -52,13 +61,26 @@ async function getAddressFromCoordinates(
 }
 
 export async function POST(request: Request) {
+  const startedAt = Date.now();
+
   try {
+    console.log("==========================================");
+    console.log("NEW REPORT");
+    console.log("Started:", new Date().toISOString());
+
     const formData = await request.formData();
+
+    console.log(
+      "FormData received in",
+      Date.now() - startedAt,
+      "ms"
+    );
 
     const photos = formData.getAll("photos") as File[];
 
     const animal_type = String(formData.get("animal_type") || "");
     const animal_condition = String(formData.get("animal_condition") || "");
+
     const manual_location_address = String(
       formData.get("location_address") || ""
     ).trim();
@@ -75,6 +97,22 @@ export async function POST(request: Request) {
 
     const hasCoordinates = location_lat !== null && location_lng !== null;
 
+    console.log("Photos:", photos.length);
+
+    photos.forEach((photo, index) => {
+      console.log(
+        `Photo ${index + 1}: ${photo.name} (${(
+          photo.size /
+          1024 /
+          1024
+        ).toFixed(2)} MB)`
+      );
+    });
+
+    console.log("Animal:", animal_type);
+    console.log("Condition:", animal_condition);
+    console.log("Coordinates:", location_lat, location_lng);
+
     if (
       photos.length === 0 ||
       !animal_type ||
@@ -82,11 +120,15 @@ export async function POST(request: Request) {
       (!manual_location_address && !hasCoordinates) ||
       !consent_given
     ) {
+      console.log("Validation failed");
+
       return NextResponse.json(
         { error: "Заполнены не все обязательные поля" },
         { status: 400 }
       );
     }
+
+    console.log("Resolving address...");
 
     const detectedAddress =
       manual_location_address ||
@@ -95,9 +137,21 @@ export async function POST(request: Request) {
     const location_address =
       detectedAddress || "Адрес не определён, есть координаты";
 
+    console.log("Resolved address:", location_address);
+
     const uploadedPhotoUrls: string[] = [];
 
+    console.log("Starting photo upload...");
+
     for (const photo of photos) {
+      console.log(
+        `Uploading ${photo.name} (${(
+          photo.size /
+          1024 /
+          1024
+        ).toFixed(2)} MB)`
+      );
+
       const fileExtension = photo.name.split(".").pop() || "jpg";
       const fileName = `${Date.now()}-${crypto.randomUUID()}.${fileExtension}`;
 
@@ -108,8 +162,12 @@ export async function POST(request: Request) {
         });
 
       if (uploadError) {
+        console.error("Upload failed:", uploadError);
+
         return NextResponse.json(
-          { error: `Ошибка загрузки фото: ${uploadError.message}` },
+          {
+            error: `Ошибка загрузки фото: ${uploadError.message}`,
+          },
           { status: 500 }
         );
       }
@@ -119,10 +177,22 @@ export async function POST(request: Request) {
         .getPublicUrl(fileName);
 
       uploadedPhotoUrls.push(publicUrlData.publicUrl);
+
+      console.log(
+        `Uploaded ${uploadedPhotoUrls.length}/${photos.length}`
+      );
     }
+
+    console.log(
+      "All photos uploaded in",
+      Date.now() - startedAt,
+      "ms"
+    );
 
     const priority = calculatePriority(animal_type, animal_condition);
     const specialist = requiresSpecialist(animal_type);
+
+    console.log("Saving report into database...");
 
     const { data, error } = await supabaseAdmin
       .from("animal_reports")
@@ -144,8 +214,21 @@ export async function POST(request: Request) {
       .single();
 
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
+      console.error("Database error:", error);
+
+      return NextResponse.json(
+        { error: error.message },
+        { status: 500 }
+      );
     }
+
+    console.log(
+      "Database saved in",
+      Date.now() - startedAt,
+      "ms"
+    );
+
+    console.log("Sending Telegram notification...");
 
     await sendTelegramReportNotification({
       id: data.id,
@@ -161,13 +244,45 @@ export async function POST(request: Request) {
       photos: uploadedPhotoUrls,
     });
 
+    console.log(
+      "Telegram sent in",
+      Date.now() - startedAt,
+      "ms"
+    );
+
+    console.log(
+      "TOTAL TIME:",
+      Date.now() - startedAt,
+      "ms"
+    );
+
+    console.log("REPORT COMPLETED");
+    console.log("==========================================");
+
     return NextResponse.json({
       success: true,
       report_id: data.id,
     });
   } catch (error) {
-    console.error("Create report error:", error);
+    console.error("==========================================");
+    console.error("REPORT ERROR");
+    console.error(error);
 
-    return NextResponse.json({ error: "Ошибка сервера" }, { status: 500 });
+    if (error instanceof Error) {
+      console.error(error.stack);
+    }
+
+    console.error(
+      "Elapsed:",
+      Date.now() - startedAt,
+      "ms"
+    );
+
+    console.error("==========================================");
+
+    return NextResponse.json(
+      { error: "Ошибка сервера" },
+      { status: 500 }
+    );
   }
 }
